@@ -74,6 +74,16 @@ class BackyardFlyer(Drone):
         4. Transition to the ARMING state
         """
         print("arming transition")
+        # Take control of the drone
+        self.take_control()
+        # Pass an arming command
+        self.arm()
+        # Set the current location to be the home position
+        self.set_home_position(
+            self.global_position[0], self.global_position[1], self.global_position[2]
+        )
+        # Transition to the ARMING state
+        self.flight_state = States.ARMING
 
     def takeoff_transition(self):
         """TODO: Fill out this method
