@@ -35,16 +35,34 @@ class BackyardFlyer(Drone):
 
     def local_position_callback(self):
         """
-        TODO: Implement this method
-
         This triggers when `MsgID.LOCAL_POSITION` is received and self.local_position contains new data
+        This function checks if the flight has arrived to the desired position
+            1. Take off position check
+            2. Waypoints position check
         """
-        pass
+        if self.flight_state == States.TAKEOFF:
+            # coordinate conversion
+            altitude = -1.0 * self.local_position[2]
+            # check if altitude is within 95% of target
+            if altitude > 0.95 * self.target_position[2]:
+                # add the map and desired path to the waypoint list
+                self.all_waypoints = self.calculate_box()
+                self.waypoint_transition()
+
+        elif self.flight_state == States.WAYPOINT:
+            # calculate the distance between the target position and my local position now.
+            # By calculating the Euclidean distant between north and east
+            # Take care of the relaxation factor it affects the flight smoothness
+            if np.linalg.norm(self.target_position[:2] - (self.local_position[:2])) < 1.0:
+                # Check if you finished all the waypoints
+                if len(self.all_waypoints) == 0:
+                    if np.linalg.norm(self.local_velocity[0:2]) < 1.0:
+                        self.landing_transition()
+                else:
+                    self.waypoint_transition()
 
     def velocity_callback(self):
         """
-        TODO: Implement this method
-
         This triggers when `MsgID.LOCAL_VELOCITY` is received and self.local_velocity contains new data
         """
         if self.flight_state == States.LANDING:
@@ -55,8 +73,6 @@ class BackyardFlyer(Drone):
 
     def state_callback(self):
         """
-        TODO: Implement this method
-
         This triggers when `MsgID.STATE` is received and self.armed and self.guided contain new data
         The flight has three states that motivates the flight to go to the transition:
             1. Manual control
