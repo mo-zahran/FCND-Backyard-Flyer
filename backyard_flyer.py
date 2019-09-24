@@ -62,8 +62,10 @@ class BackyardFlyer(Drone):
         
         1. Return waypoints to fly a box
         """
-
-        pass
+        # provide sequence of waypoints
+        square = [(10, 0, 5, 0), (10, 10, 5, 0), (0, 10, 5, 0), (0, 0, 5, 0)]
+        # Return waypoints to fly a box
+        return square
 
     def arming_transition(self):
         """TODO: Fill out this method
@@ -123,6 +125,10 @@ class BackyardFlyer(Drone):
         2. Transition to the LANDING state
         """
         print("landing transition")
+        # Command the drone to land
+        self.land()
+        # Transition to the LANDING state
+        self.flight_state = States.LANDING
 
     def disarming_transition(self):
         """TODO: Fill out this method
@@ -131,6 +137,12 @@ class BackyardFlyer(Drone):
         2. Transition to the DISARMING state
         """
         print("disarm transition")
+        # Command the drone to disarm
+        self.disarm()
+        # After disarming you should release the control
+        self.release_control()
+        # Transition to the DISARMING state
+        self.flight_state = States.DISARMING
 
     def manual_transition(self):
         """This method is provided
